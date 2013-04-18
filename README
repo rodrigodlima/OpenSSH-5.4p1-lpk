@@ -1,0 +1,9 @@
+OpenSSH-LPK
+
+The OpenSSH LDAP Public Key patch provides an easy way of centralizing strong user authentication by using an LDAP server for retrieving public keys instead of ~/.ssh/authorized_keys. 
+
+By: http://code.google.com/p/openssh-lpk/
+
+
+This directory contains the patches necessary to build OpenSSH-LPK to Red Hat Systems.
+

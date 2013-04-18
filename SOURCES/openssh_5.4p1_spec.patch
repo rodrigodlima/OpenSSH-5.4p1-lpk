@@ -1,0 +1,83 @@
+--- ../SOURCES/openssh-5.4p1/contrib/redhat/openssh.spec	2010-03-08 06:41:04.000000000 +0800
++++ openssh_5.4p1.spec	2010-12-04 16:48:48.000000000 +0800
+@@ -1,5 +1,5 @@
+ %define ver 5.4p1
+-%define rel 1
++%define rel 2
+ 
+ # OpenSSH privilege separation requires a user & group ID
+ %define sshd_uid    74
+@@ -8,11 +8,15 @@
+ # Version of ssh-askpass
+ %define aversion 1.2.4.1
+ 
++# Declare
++%define skip_x11_askpass 0
++
++
+ # Do we want to disable building of x11-askpass? (1=yes 0=no)
+ %define no_x11_askpass 0
+ 
+ # Do we want to disable building of gnome-askpass? (1=yes 0=no)
+-%define no_gnome_askpass 0
++%define no_gnome_askpass 1
+ 
+ # Do we want to link against a static libcrypto? (1=yes 0=no)
+ %define static_libcrypto 0
+@@ -29,6 +33,9 @@
+ # Do we want kerberos5 support (1=yes 0=no)
+ %define kerberos5 1
+ 
++# Do we want openssh-lpk support (1=yes 0=no)
++%define openssh_lpk 1
++
+ # Reserve options to override askpass settings with:
+ # rpm -ba|--rebuild --define 'skip_xxx 1'
+ %{?skip_x11_askpass:%define no_x11_askpass 1}
+@@ -77,6 +84,7 @@
+ %if ! %{skip_x11_askpass}
+ Source1: http://www.jmknoble.net/software/x11-ssh-askpass/x11-ssh-askpass-%{aversion}.tar.gz
+ %endif
++Patch0: contrib-openssh-lpk-5.4p1-0.3.13.patch
+ License: BSD
+ Group: Applications/Internet
+ BuildRoot: %{_tmppath}/%{name}-%{version}-buildroot
+@@ -103,6 +111,9 @@
+ BuildPreReq: krb5-devel
+ BuildPreReq: krb5-libs
+ %endif
++%if %{openssh_lpk}
++BuildPreReq: openldap-devel
++%endif
+ 
+ %package clients
+ Summary: OpenSSH clients.
+@@ -178,6 +189,8 @@
+ %setup -q
+ %endif
+ 
++%patch0 -p1
++
+ %build
+ %if %{rescue}
+ CFLAGS="$RPM_OPT_FLAGS -Os"; export CFLAGS
+@@ -209,6 +222,9 @@
+ %if %{kerberos5}
+ 	 --with-kerberos5=$K5DIR \
+ %endif
++%if %{openssh_lpk}
++	 --with-ldap \
++%endif
+ 
+ 
+ %if %{static_libcrypto}
+@@ -407,6 +423,9 @@
+ %endif
+ 
+ %changelog
++* Sat Dec 4 2010 Hideki Machida <******@******>
++- Added support for openssh-lpk (from http://code.google.com/p/openssh-lpk/).
++
+ * Mon Jun 2 2003 Damien Miller <djm@mindrot.org>
+ - Remove noip6 option. This may be controlled at run-time in client config
+   file using new AddressFamily directive
